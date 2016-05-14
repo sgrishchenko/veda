@@ -1,5 +1,8 @@
 package com.veda.controller;
 
+import com.veda.Connection;
+import com.veda.util.ConnectionPool;
+import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -11,14 +14,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 @Controller
-public class MainController {
-    @RequestMapping(value = "/test-connection", method = RequestMethod.GET)
+public class ConnectionController {
+    @RequestMapping(value = "/connection", method = RequestMethod.GET)
     @ResponseBody
-    public boolean test(@RequestParam Map<String, String> params) {
+    public UUID connection(@RequestParam(defaultValue = "New connection") String name,
+                           @RequestParam Map<String, String> params) {
+
         try {
             Properties properties = new Properties();
+            params.remove("name");
             properties.putAll(params);
 
             Configuration configuration = new Configuration().configure();
@@ -28,10 +35,12 @@ public class MainController {
                     .applySettings(configuration.getProperties())
                     .build();
 
-            configuration.buildSessionFactory(serviceRegistry).close();
-            return true;
+            SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            Connection connection = new Connection(name, properties, sessionFactory);
+            ConnectionPool.getInstance().add(connection);
+            return connection.getUuid();
         } catch (Throwable ex) {
-            return false;
+            return null;
         }
     }
 

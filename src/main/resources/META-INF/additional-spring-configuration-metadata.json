@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "veda.connection.timeout",
+      "type": "java.lang.Long",
+      "description": "Time in milliseconds after which an inactive connection to the database will be closed."
+    }
+  ]
+}

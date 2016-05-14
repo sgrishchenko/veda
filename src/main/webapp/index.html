@@ -8,15 +8,21 @@
         $(function () {
             var $connectionConfig = $("#connection-config");
             var $connectionStatus = $("#connection-status");
-            var $testConnection = $("#test-connection");
+            var $connect = $("#connect");
 
-            $testConnection.click(function () {
+            $connect.click(function () {
                 $.ajax({
                     type: "GET",
-                    url: "/test-connection",
+                    url: "/connection",
                     data: $connectionConfig.serialize(),
                     success: function (response) {
                         $connectionStatus.text(response ? "connected" : "not connected");
+                        if (!response) return;
+
+                        location.search = $.param({connection: response})
+                    },
+                    error: function () {
+                        $connectionStatus.text("not connected");
                     }
                 });
             });
@@ -29,13 +35,16 @@
         <option value="com.mysql.jdbc.Driver">MySQL</option>
     </select>
     <br>
-    <input name="hibernate.connection.url" title="URL" placeholder="URL" value="jdbc:mysql://localhost:3306/molec_clust?useSSL=false">
+    <input name="name" title="Connection Name" placeholder="Connection Name" value="">
+    <br>
+    <input name="hibernate.connection.url" title="URL" placeholder="URL"
+           value="jdbc:mysql://localhost:3306/molec_clust?useSSL=false">
     <br>
     <input name="hibernate.connection.username" title="User name" placeholder="User name" value="admin">
     <br>
     <input name="hibernate.connection.password" title="URL" type="password" placeholder="Password" value="MC2016-G">
     <br>
-    <button type="button" id="test-connection">Test connection</button>
+    <button type="button" id="connect">Connect</button>
     <br>
     <span>Connection status: </span><span id="connection-status"></span>
 </form>
