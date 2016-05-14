@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <title>Veda</title>
     <script src="js/jquery-2.2.3.min.js"></script>
+    <link href="css/style.css" rel="stylesheet">
     <script>
         $(function () {
+            var connection;
             var $connectionConfig = $("#connection-config");
             var $connectionStatus = $("#connection-status");
             var $connect = $("#connect");
+            var $execute = $("#execute");
+            var $sql = $("#sql");
+            var $result = $("#result");
 
             $connect.click(function () {
                 $.ajax({
@@ -19,13 +24,30 @@
                         $connectionStatus.text(response ? "connected" : "not connected");
                         if (!response) return;
 
-                        location.search = $.param({connection: response})
+                        history.pushState({}, "", "?" + $.param({connection: response}));
+                        connection = response;
                     },
                     error: function () {
                         $connectionStatus.text("not connected");
                     }
                 });
             });
+
+            $execute.click(function () {
+                if (!connection) return;
+                $.ajax({
+                    type: "POST",
+                    url: "/execute",
+                    data: {connection: connection, sql: $sql.val()},
+                    success: function (response) {
+                        $result.append($.map(response, function (row) {
+                            return $("<tr>").append($.map(row, function (data) {
+                                return $("<td>").text(data);
+                            }))
+                        }))
+                    }
+                });
+            })
         })
     </script>
 </head>
@@ -38,7 +60,7 @@
     <input name="name" title="Connection Name" placeholder="Connection Name" value="">
     <br>
     <input name="hibernate.connection.url" title="URL" placeholder="URL"
-           value="jdbc:mysql://localhost:3306/molec_clust?useSSL=false">
+           value="jdbc:mysql://localhost:3306/veda?useSSL=false">
     <br>
     <input name="hibernate.connection.username" title="User name" placeholder="User name" value="admin">
     <br>
@@ -48,6 +70,9 @@
     <br>
     <span>Connection status: </span><span id="connection-status"></span>
 </form>
-<div id="text"></div>
+<textarea id="sql" title="Your SQL query..." placeholder="Your SQL query...">SELECT * FROM data</textarea>
+<br>
+<button type="button" id="execute">Execute</button>
+<table id="result" class="data-table"></table>
 </body>
 </html>
