@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Veda</title>
+    <script src="js/jquery-2.2.3.min.js"></script>
+    <script>
+        $(function () {
+            var $connectionConfig = $("#connection-config");
+            var $connectionStatus = $("#connection-status");
+            var $testConnection = $("#test-connection");
+
+            $testConnection.click(function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/test-connection",
+                    data: $connectionConfig.serialize(),
+                    success: function (response) {
+                        $connectionStatus.text(response ? "connected" : "not connected");
+                    }
+                });
+            });
+        })
+    </script>
+</head>
+<body>
+<form id="connection-config">
+    <select name="hibernate.connection.driver_class" title="Database">
+        <option value="com.mysql.jdbc.Driver">MySQL</option>
+    </select>
+    <br>
+    <input name="hibernate.connection.url" title="URL" placeholder="URL" value="jdbc:mysql://localhost:3306/molec_clust?useSSL=false">
+    <br>
+    <input name="hibernate.connection.username" title="User name" placeholder="User name" value="admin">
+    <br>
+    <input name="hibernate.connection.password" title="URL" type="password" placeholder="Password" value="MC2016-G">
+    <br>
+    <button type="button" id="test-connection">Test connection</button>
+    <br>
+    <span>Connection status: </span><span id="connection-status"></span>
+</form>
+<div id="text"></div>
+</body>
+</html>
