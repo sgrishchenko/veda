@@ -5,8 +5,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +32,10 @@ public class QueryController {
         try {
             transaction = session.beginTransaction();
 
-            result = session.createSQLQuery(sql).list();
+            result = session
+                    .createSQLQuery(sql)
+                    .setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE)
+                    .list();
 
             transaction.commit();
         } catch (HibernateException e) {

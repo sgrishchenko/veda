@@ -40,11 +40,17 @@
                     url: "/execute",
                     data: {connection: connection, sql: $sql.val()},
                     success: function (response) {
-                        $result.append($.map(response, function (row) {
-                            return $("<tr>").append($.map(row, function (data) {
-                                return $("<td>").text(data);
-                            }))
-                        }))
+                        if (!response.length) return;
+
+                        $result
+                                .append($("<tr>").append($.map(response[0], function (data, column) {
+                                    return $("<th>").text(column);
+                                })))
+                                .append($.map(response, function (row) {
+                                    return $("<tr>").append($.map(row, function (data) {
+                                        return $("<td>").text(data);
+                                    }))
+                                }))
                     }
                 });
             })
